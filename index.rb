@@ -24,7 +24,7 @@ get '/' do
 
   headers "X-Hash-Me" => hash
   status 200
-  body 'ok'
+  'ok'
 end
 
 post '/' do
@@ -33,21 +33,18 @@ post '/' do
 
   if call.nil? || call.length != 64
     status 419
-    body 'not ok 1 - call mismatch'
-    return
+    return 'not ok 1 - call mismatch'
   end
 
   if response.nil? || response.length != 128
     status 419
-    body 'not ok 2 - response invalid'
-    return
+    return 'not ok 2 - response invalid'
   end
 
   valid = REDIS.get(key(call))
   if valid.nil?
     status 419
-    body 'not ok 3 - call expired'
-    return
+    return 'not ok 3 - call expired'
   end
 
   valid = valid.to_i
@@ -55,16 +52,12 @@ post '/' do
 
   if delta > EXPIRE
     status 419
-    body 'not ok 4 - call expired'
+    return 'not ok 4 - call expired'
   end
-
-  puts valid
-  puts delta
 
   if response != Hasher.pepper(call)
     status 419
-    body 'not ok 5 - response mismatch'
-    return
+    return 'not ok 5 - response mismatch'
   end
 
   status 200
