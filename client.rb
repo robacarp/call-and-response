@@ -7,17 +7,17 @@ url = URI("http://localhost:4567/")
 
 begin
   request = Net::HTTP.get_response url
-  call = request["X-Hash-Me"]
+  token = request["X-Hash-Me"]
 
-  if call.nil? || call.length != 64
+  if token.nil? || token.length != 64
     puts "couldn't verify call"
     debugger
     exit(1)
   end
 
-  response = Hasher.pepper Hasher.salt
+  response = Hasher.pepper token
   request = Net::HTTP.post_form(url, {
-    call: call,
+    call: token,
     response: response
   })
 
