@@ -1,4 +1,5 @@
 require 'openssl'
+require 'SecureRandom'
 
 module Hasher
   class << self
@@ -13,8 +14,14 @@ module Hasher
     SALT = lines[0]
     PEPPER = lines[1]
 
+    def randomish
+      SecureRandom.hex(
+        Integer (SecureRandom.random_number * 1000 + 10)
+      )
+    end
+
     def salt
-      OpenSSL::Digest::SHA256.hexdigest(SALT + Time.now.to_s)
+      OpenSSL::Digest::SHA256.hexdigest(SALT + Time.now.to_s + randomish)
     end
 
     def pepper salted
