@@ -10,6 +10,13 @@ configure do
   REDIS = Redis.new host: 'localhost', port: 6379
 end
 
+before do
+  requests = REDIS.keys "dyndns:*"
+  if requests.length > 5
+    halt 420, 'not ok -1 rate limited'
+  end
+end
+
 def key hash
   key = "dyndns:#{hash}"
 end
