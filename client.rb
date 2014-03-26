@@ -1,5 +1,4 @@
 require 'net/http'
-require 'debugger'
 
 load 'hasher.rb'
 
@@ -10,9 +9,8 @@ begin
   token = request["X-Hash-Me"]
 
   if token.nil? || token.length != 64
-    puts "couldn't verify call"
-    debugger
-    exit(1)
+    puts "couldn't verify call. response: " + request.code + " " + request.body
+    exit 1
   end
 
   response = Hasher.pepper token
@@ -23,6 +21,7 @@ begin
 
   if request.code.to_i != 200
     print "update failed: "
+    exit 2
   else
     print "update succeeded: "
   end
@@ -30,6 +29,11 @@ begin
 
 rescue Errno::ECONNREFUSED
   puts "connection refused"
+  exit 3
 rescue Net::ReadTimeout
   puts "connection timeout"
+  exit 4
+rescue Errno::EPIPE, Errno::EINVAL
+  puts "broken pipe... wat r u doin?"
+  exit 5
 end
